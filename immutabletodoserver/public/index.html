@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ReactFire Demo</title>
+    <script src="https://fb.me/react-15.0.0.js"></script>
+    <script src="https://fb.me/react-dom-15.0.0.js"></script>
+    <script   src="http://code.jquery.com/jquery-3.1.1.min.js"   integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="   crossorigin="anonymous"></script>     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase.js"></script>
+    <!-- ReactFire -->
+    <script src="https://cdn.firebase.com/libs/reactfire/1.0.0/reactfire.min.js"></script>
+</head>
+<body>
+<div id="container">
+    <!-- This element's contents will be replaced with your component. -->
+</div>
+<script type="text/babel">
+    "use strict";
+    var config = {
+        apiKey: "AIzaSyCzmBUT4xthUsfcMVdrgez0JPP2q1ss-gU",
+        authDomain: "swe432lecture12.firebaseapp.com",
+        databaseURL: "https://swe432lecture12.firebaseio.com",
+        storageBucket: "swe432lecture12.appspot.com",
+        messagingSenderId: "256616821595"
+    };
+    firebase.initializeApp(config);
+
+    var TodoList = React.createClass({
+        render: function () {
+            var _this = this; //In the subcomponent, "this" will refer to window, so need to save "this" here
+            var createItem = function (item, key) {
+                return (<div key={key}><input type="text" disabled onChange={_this.props.onChange.bind(null, item['.key'])}
+                                              value={item.text}/>
+                    <button onClick={_this.props.removeItem.bind(null, item['.key'])}>&#x2716;</button>
+                </div>);
+            };
+            return <ul>{this.props.items.map(createItem)}</ul>;
+        }
+    });
+    var TodoApp = React.createClass({
+        mixins: [ReactFireMixin],
+        getInitialState: function () {
+            return {items: []};
+        },
+        componentWillMount: function () {
+            this.fireRef = firebase.database().ref('todos');
+
+            this.bindAsArray(this.fireRef, "items");
+        },
+        onChange: function (fireKey, event) {
+            this.fireRef.child(fireKey).set({"text": event.target.value});
+        },
+        removeItem: function (key) {
+            this.fireRef.child(key).remove();
+        },
+
+        handleAdd: function (e) {
+            var newText = $("#newTodo").val();
+            $.post("http://localhost:3000/newTodo",{ todoText: newText});
+            $("#newTodo").clear();
+        },
+        render: function () {
+            return (
+                    <div>
+                        <h3>TODO</h3>
+                        <TodoList items={this.state.items} removeItem={this.removeItem} onChange={this.onChange}/>
+                        <input type="text" id="newTodo" /><button onClick={this.handleAdd}>New</button>
+                    </div>
+            );
+        }
+    });
+
+    ReactDOM.render(<TodoApp />, document.getElementById('container'));
+
+
+</script>
+
+</body>
+</html>
