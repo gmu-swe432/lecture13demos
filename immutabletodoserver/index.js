@@ -22,6 +22,11 @@ app.post('/newTodo', function (req, res) {
         res.send("OK!");
     });
 });
+app.get('/emptyHtml.html', function (req, res) {
+    console.log("Requested empty html");
+    res.send("OK!");
+});
+
 app.use(express.static('public'));
 
 app.listen(port, function () {
