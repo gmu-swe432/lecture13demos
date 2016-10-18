@@ -20,6 +20,8 @@ app.post('/newTodo', function (req, res) {
     console.log("Client wants to create todo: '" + req.body.todoText + "'");
     fireRef.push({"text": req.body.todoText}, function () {
         res.send("OK!");
+    }).catch(function(){
+        res.status(403);
     });
 });
 app.post('/editTodo', function (req, res) {
@@ -29,6 +31,8 @@ app.post('/editTodo', function (req, res) {
     else
         fireRef.child(req.body.key).set({"text": req.body.todoText}, function () {
             res.send("OK!");
+        }).catch(function(){
+            res.status(403);
         });
 });
 app.post('/deleteTodo', function (req, res) {
@@ -37,7 +41,12 @@ app.post('/deleteTodo', function (req, res) {
         if(item.val().text.toLowerCase().includes("lasagna"))
             res.status(403);
         else
+        {
             fireRef.child(req.body.key).remove();
+            res.send("OK!");
+        }
+    }).catch(function(){
+        res.status(403);
     });
 });
 app.get('/emptyHtml.html', function (req, res) {
