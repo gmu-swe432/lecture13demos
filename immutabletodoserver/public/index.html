@@ -30,7 +30,7 @@
         render: function () {
             var _this = this; //In the subcomponent, "this" will refer to window, so need to save "this" here
             var createItem = function (item, key) {
-                return (<div key={key}><input type="text" disabled }
+                return (<div key={key}><input type="text" onChange={_this.props.updateItem.bind(null, item['.key'])}
                                               value={item.text}/>
                     <button onClick={_this.props.removeItem.bind(null, item['.key'])}>&#x2716;</button>
                 </div>);
@@ -48,19 +48,22 @@
             this.bindAsArray(this.fireRef, "items");
         },
         removeItem: function (key) {
-            this.fireRef.child(key).remove();
+            $.post("http://localhost:3000/deleteTodo",{ key: key});
         },
 
         handleAdd: function (e) {
             var newText = $("#newTodo").val();
-            $.post("http://localhost:3000/newTodo",{ todoText: "Same text"});
-            $("#newTodo").clear();
+            $.post("http://localhost:3000/newTodo",{ todoText: newText});
+            $("#newTodo").val("");
+        },
+        handleUpdate: function (fireKey, e) {
+            $.post("http://localhost:3000/editTodo",{ todoText: e.target.value, key: fireKey});
         },
         render: function () {
             return (
                     <div>
                         <h3>TODO</h3>
-                        <TodoList items={this.state.items} removeItem={this.removeItem} />
+                        <TodoList items={this.state.items} updateItem={this.handleUpdate} removeItem={this.removeItem} />
                         <input type="text" id="newTodo" /><button onClick={this.handleAdd}>New</button>
                     </div>
             );

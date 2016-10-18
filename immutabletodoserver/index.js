@@ -22,10 +22,29 @@ app.post('/newTodo', function (req, res) {
         res.send("OK!");
     });
 });
+app.post('/editTodo', function (req, res) {
+    console.log("Client wants to update todo: '" +req.body.key+ " To " + req.body.todoText + "'");
+    if(req.body.todoText.toLowerCase().includes("lasagna"))
+        res.status(403);
+    else
+        fireRef.child(req.body.key).set({"text": req.body.todoText}, function () {
+            res.send("OK!");
+        });
+});
+app.post('/deleteTodo', function (req, res) {
+    console.log("Client wants to delete todo: '" +req.body.key);
+    fireRef.child(req.body.key).once("value", function(item){
+        if(item.val().text.toLowerCase().includes("lasagna"))
+            res.status(403);
+        else
+            fireRef.child(req.body.key).remove();
+    });
+});
 app.get('/emptyHtml.html', function (req, res) {
     console.log("Requested empty html");
     res.send("OK!");
 });
+
 
 app.use(express.static('public'));
 
